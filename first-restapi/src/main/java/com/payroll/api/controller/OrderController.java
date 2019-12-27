@@ -1,4 +1,4 @@
-package payroll;
+package com.payroll.api.controller;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,18 +18,25 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.payroll.api.repository.OrderRepository;
+import com.payroll.api.assembler.OrderResourceAssembler;
+import com.payroll.api.model.entity.Order;
+import com.payroll.api.exception.OrderNotFoundException;
+import com.payroll.api.model.enumeration.Status;
+
+
 @RestController
-class OrderController {
+public class OrderController {
     private final OrderRepository repository;
     private final OrderResourceAssembler assembler;
 
-    OrderController(OrderRepository repository, OrderResourceAssembler assembler){
+    public OrderController(OrderRepository repository, OrderResourceAssembler assembler){
         this.repository = repository;
         this.assembler = assembler;
     }
 
     @GetMapping("/orders")
-    CollectionModel<EntityModel<Order>> all(){
+    public CollectionModel<EntityModel<Order>> all(){
         List<EntityModel<Order>> orders = repository.findAll().stream()
             .map(assembler::toModel)
             .collect(Collectors.toList());
@@ -39,15 +46,14 @@ class OrderController {
     }
 
     @GetMapping("/orders/{id}")
-    EntityModel<Order> one(@PathVariable Long id){
+    public EntityModel<Order> one(@PathVariable Long id){
         return assembler.toModel(
             repository.findById(id)
             .orElseThrow(() -> new OrderNotFoundException(id)));
     }
 
     @PostMapping("/orders")
-    ResponseEntity<EntityModel<Order>> newOrder (@RequestBody Order order){
-        
+    public ResponseEntity<EntityModel<Order>> newOrder (@RequestBody Order order){
         order.setStatus(Status.IN_PROGRESS);
         Order newOrder = repository.save(order);
         return ResponseEntity
@@ -57,7 +63,7 @@ class OrderController {
     }
 
     @DeleteMapping("/orders/{id}/cancel")
-    ResponseEntity<RepresentationModel> cancel(@PathVariable Long id){
+    public ResponseEntity<RepresentationModel> cancel(@PathVariable Long id){
         Order order = repository.findById(id).orElseThrow(() -> new OrderNotFoundException(id));
 
         if(order.getStatus() == Status.IN_PROGRESS){
@@ -71,7 +77,7 @@ class OrderController {
     }
 
     @PutMapping("/orders/{id}/complete")
-    ResponseEntity<RepresentationModel> complete(@PathVariable Long id){
+    public ResponseEntity<RepresentationModel> complete(@PathVariable Long id){
         Order order = repository.findById(id).orElseThrow(() -> new OrderNotFoundException(id));
         
         if(order.getStatus() == Status.IN_PROGRESS){

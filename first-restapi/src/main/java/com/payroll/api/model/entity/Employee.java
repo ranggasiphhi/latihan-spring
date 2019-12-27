@@ -1,4 +1,4 @@
-package payroll;
+package com.payroll.api.model.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,15 +8,15 @@ import lombok.Data;
 
 @Data
 @Entity
-class Employee {
+public class Employee {
     private @Id @GeneratedValue Long id;
     private String firstName;
     private String lastName;
     private String role;
 
-    Employee() {}
+    public Employee() {}
 
-    Employee(String firstName, String lastName, String role){
+    public Employee(String firstName, String lastName, String role){
         this.firstName = firstName;
         this.lastName = lastName;
         this.role = role;
